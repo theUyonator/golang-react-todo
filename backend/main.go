@@ -31,9 +31,9 @@ func main(){
 
 	todos := []Todo{}
 
-	app.Get("/healthcheck", func(c *fiber.Ctx) error {
-		return c.SendString("OK")
-	})
+	// app.Get("/healthcheck", func(c *fiber.Ctx) error {
+	// 	return c.SendString("OK")
+	// })
 
 	//This endpoint sends a POST request to create our todo
 	app.Post("/api/todos", func(c *fiber.Ctx) error {
@@ -70,17 +70,23 @@ func main(){
 
 	//This endpoint sends a PATCH request to edit an individual todo
 	app.Patch("/api/todos/:id/edit", func(c *fiber.Ctx) error {
+		_task := new(Todo) 
+		
 		id, err := c.ParamsInt("id")
-		task := c.BodyParser()
 
 		if err != nil {
 			return c.Status(401).SendString("Invalid id")
 		}
 
+		err = c.BodyParser(_task)
+
+		if err != nil {
+			return err;
+		}
+
 		for i, t := range todos {
 			if t.ID == id {
-				todos[i].Task = task
-				break
+				todos[i].Task = _task.Task
 			}
 		}
 
