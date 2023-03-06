@@ -2,8 +2,9 @@ package main
 
 ///We are going to be using Fiber as our HTTP engine to make requests 
 import (
-	// "fmt"
+	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -60,7 +61,7 @@ func main(){
 
 		for i, t := range todos {
 			if t.ID == id {
-				todos[i].IsComplete = true
+				todos[i].IsComplete = !todos[i].IsComplete
 				break
 			}
 		}
@@ -87,6 +88,7 @@ func main(){
 		for i, t := range todos {
 			if t.ID == id {
 				todos[i].Task = _task.Task
+				break
 			}
 		}
 
@@ -98,5 +100,28 @@ func main(){
 		return c.JSON(todos)
 	})
 
+	//This endpoint sends a DELETE request to remove an individual task  from the list of todos
+	app.Delete("/api/todos/:id", func(c *fiber.Ctx) error {
+		id, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString("Invalid ID")
+		}
+		if err := deleteTodoByID(id, &todos); err != nil {
+			return c.Status(fiber.StatusNotFound).SendString(err.Error())
+		}
+		return c.SendString("Todo deleted successfully")
+	})
+
 	log.Fatal(app.Listen(":4000"))
+}
+
+// Function to delete a todo item from the slice
+func deleteTodoByID(id int, todos *[]Todo) error {
+    for i, todo := range *todos {
+        if todo.ID == id {
+            *todos = append((*todos)[:i], (*todos)[i+1:]...)
+            return nil
+        }
+    }
+    return fmt.Errorf("Todo with ID %d not found", id)
 }

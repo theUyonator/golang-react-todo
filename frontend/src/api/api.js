@@ -29,20 +29,38 @@ static async request(endpoint, data={}, method="get"){
 // Individual API endpoints 
 static async getAllTodos() {
     let res = await this.request("api/todos");
-    console.log(res)
-    return res.todos 
+    // console.log(res)
+    return res 
 }
 
 static async createTodo(data){
+    console.log(data)
+    if(!data.task) return;
+
     let res = await this.request("api/todos", data, "post");
-    console.log(res)
+    // console.log(res)
     return res
 }
 
 static async completeTodo(id, data={}){
     let res = await this.request(`api/todos/${id}/complete`, data, "patch");
-    console.log(res)
-    return res.todos
+    // console.log(res)
+    return res
+}
+
+static async editTodo(id, data){
+    console.log(data)
+    if(!data.task) return;
+
+    let res = await this.request(`api/todos/${id}/edit`, data, "patch");
+
+    return res
+}
+
+static async deleteTodo(id, data={}){
+    let res = await this.request(`api/todos/${id}`, data, "delete");
+
+    return res
 }
 
 }
